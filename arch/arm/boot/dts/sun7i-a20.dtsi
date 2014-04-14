@@ -87,7 +87,7 @@
 
 		pll4: clk@01c20018 {
 			#clock-cells = <0>;
-			compatible = "allwinner,sun4i-a10-pll1-clk";
+			compatible = "allwinner,sun7i-a20-pll4-clk";
 			reg = <0x01c20018 0x4>;
 			clocks = <&osc24M>;
 			clock-output-names = "pll4";
@@ -107,6 +107,14 @@
 			reg = <0x01c20028 0x4>;
 			clocks = <&osc24M>;
 			clock-output-names = "pll6_sata", "pll6_other", "pll6";
+		};
+
+		pll8: clk@01c20040 {
+			#clock-cells = <0>;
+			compatible = "allwinner,sun7i-a20-pll4-clk";
+			reg = <0x01c20040 0x4>;
+			clocks = <&osc24M>;
+			clock-output-names = "pll8";
 		};
 
 		cpu: cpu@01c20054 {
@@ -776,6 +784,8 @@
 			clocks = <&apb1_gates 0>;
 			clock-frequency = <100000>;
 			status = "disabled";
+			#address-cells = <1>;
+			#size-cells = <0>;
 		};
 
 		i2c1: i2c@01c2b000 {
@@ -785,6 +795,8 @@
 			clocks = <&apb1_gates 1>;
 			clock-frequency = <100000>;
 			status = "disabled";
+			#address-cells = <1>;
+			#size-cells = <0>;
 		};
 
 		i2c2: i2c@01c2b400 {
@@ -794,6 +806,8 @@
 			clocks = <&apb1_gates 2>;
 			clock-frequency = <100000>;
 			status = "disabled";
+			#address-cells = <1>;
+			#size-cells = <0>;
 		};
 
 		i2c3: i2c@01c2b800 {
@@ -803,6 +817,8 @@
 			clocks = <&apb1_gates 3>;
 			clock-frequency = <100000>;
 			status = "disabled";
+			#address-cells = <1>;
+			#size-cells = <0>;
 		};
 
 		i2c4: i2c@01c2bc00 {
@@ -812,6 +828,8 @@
 			clocks = <&apb1_gates 15>;
 			clock-frequency = <100000>;
 			status = "disabled";
+			#address-cells = <1>;
+			#size-cells = <0>;
 		};
 
 		gmac: ethernet@01c50000 {
