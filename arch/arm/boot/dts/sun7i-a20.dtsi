@@ -57,6 +57,12 @@
 			     <1 10 0xf08>;
 	};
 
+	pmu {
+		compatible = "arm,cortex-a7-pmu", "arm,cortex-a15-pmu";
+		interrupts = <0 120 4>,
+			     <0 121 4>;
+	};
+
 	clocks {
 		#address-cells = <1>;
 		#size-cells = <1>;
@@ -821,9 +827,9 @@
 			#size-cells = <0>;
 		};
 
-		i2c4: i2c@01c2bc00 {
+		i2c4: i2c@01c2c000 {
 			compatible = "allwinner,sun4i-i2c";
-			reg = <0x01c2bc00 0x400>;
+			reg = <0x01c2c000 0x400>;
 			interrupts = <0 89 4>;
 			clocks = <&apb1_gates 15>;
 			clock-frequency = <100000>;
