@@ -16,6 +16,7 @@
 #include <linux/err.h>
 #include <linux/slab.h>
 #include <linux/stat.h>
+#include <linux/of.h>
 #include <linux/pm_runtime.h>
 
 #include <linux/mmc/card.h>
@@ -289,6 +290,16 @@ struct mmc_card *mmc_alloc_card(struct mmc_host *host, struct device_type *type)
 	return card;
 }
 
+static void mmc_set_of_node(struct mmc_card *card)
+{
+	struct mmc_host *host = card->host;
+
+	if (!host->parent->of_node)
+		return;
+
+	card->dev.of_node = mmc_of_find_child_device(host->parent->of_node, 0);
+}
+
 /*
  * Register a new MMC card with the driver model.
  */
@@ -359,6 +370,8 @@ int mmc_add_card(struct mmc_card *card)
 #endif
 	mmc_init_context_info(card->host);
 
+	mmc_set_of_node(card);
+
 	ret = device_add(&card->dev);
 	if (ret)
 		return ret;
@@ -387,6 +400,7 @@ void mmc_remove_card(struct mmc_card *card)
 				mmc_hostname(card->host), card->rca);
 		}
 		device_del(&card->dev);
+		of_node_put(card->dev.of_node);
 	}
 
 	put_device(&card->dev);

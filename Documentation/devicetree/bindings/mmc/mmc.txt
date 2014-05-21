@@ -60,6 +60,15 @@ Optional SDIO properties:
 - keep-power-in-suspend: Preserves card power during a suspend/resume cycle
 - enable-sdio-wakeup: Enables wake up of host system on SDIO IRQ assertion
 
+Function subnodes:
+On embedded systems the cards connected to a host may need additional properties.
+These can be specified in subnodes to the host controller node. The subnodes are
+identified by the standard 'reg' property.
+Required properties:
+- reg: Must contain the SDIO function number of the function this subnode describes.
+       A value of 0 denotes the memory SD function, values from 1 to 7 denote the
+       SDIO functions.
+
 Example:
 
 sdhci@ab000000 {
@@ -73,4 +82,25 @@ sdhci@ab000000 {
 	max-frequency = <50000000>;
 	keep-power-in-suspend;
 	enable-sdio-wakeup;
+}
+
+Example with SDIO subnode:
+
+sdhci@ab000000 {
+	compatible = "sdhci";
+	reg = <0xab000000 0x200>;
+	interrupts = <23>;
+	bus-width = <4>;
+	cd-gpios = <&gpio 69 0>;
+	cd-inverted;
+	wp-gpios = <&gpio 70 0>;
+	max-frequency = <50000000>;
+	keep-power-in-suspend;
+	enable-sdio-wakeup;
+
+	func@2 {
+		reg = <2>;
+		reset-gpios = <&gpio 69 0>;
+		clock-frequency = <26000000>;
+	};
 }
