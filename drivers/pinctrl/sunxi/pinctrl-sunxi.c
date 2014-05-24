@@ -542,6 +542,7 @@ static int sunxi_pinctrl_irq_set_type(struct irq_data *d,
 	struct sunxi_pinctrl *pctl = irq_data_get_irq_chip_data(d);
 	u32 reg = sunxi_irq_cfg_reg(d->hwirq);
 	u8 index = sunxi_irq_cfg_offset(d->hwirq);
+	struct sunxi_desc_function *func;
 	unsigned long flags;
 	u32 regval;
 	u8 mode;
@@ -573,6 +574,12 @@ static int sunxi_pinctrl_irq_set_type(struct irq_data *d,
 	writel(regval | (mode << index), pctl->membase + reg);
 
 	spin_unlock_irqrestore(&pctl->lock, flags);
+
+	func = sunxi_pinctrl_desc_find_function_by_pin(pctl,
+					pctl->irq_array[d->hwirq], "irq");
+
+	/* Change muxing to INT mode */
+	sunxi_pmx_set(pctl->pctl_dev, pctl->irq_array[d->hwirq], func->muxval);
 
 	return 0;
 }
@@ -619,18 +626,10 @@ static void sunxi_pinctrl_irq_mask(struct irq_data *d)
 static void sunxi_pinctrl_irq_unmask(struct irq_data *d)
 {
 	struct sunxi_pinctrl *pctl = irq_data_get_irq_chip_data(d);
-	struct sunxi_desc_function *func;
 	u32 reg = sunxi_irq_ctrl_reg(d->hwirq);
 	u8 idx = sunxi_irq_ctrl_offset(d->hwirq);
 	unsigned long flags;
 	u32 val;
-
-	func = sunxi_pinctrl_desc_find_function_by_pin(pctl,
-						       pctl->irq_array[d->hwirq],
-						       "irq");
-
-	/* Change muxing to INT mode */
-	sunxi_pmx_set(pctl->pctl_dev, pctl->irq_array[d->hwirq], func->muxval);
 
 	spin_lock_irqsave(&pctl->lock, flags);
 
