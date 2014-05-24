@@ -36,6 +36,7 @@ static void sunxi_pinctrl_irq_mask_ack(struct irq_data *d);
 static void sunxi_pinctrl_irq_mask(struct irq_data *d);
 static void sunxi_pinctrl_irq_unmask(struct irq_data *d);
 static void sunxi_pinctrl_irq_ack(struct irq_data *d);
+static void sunxi_pinctrl_irq_ack_unmask(struct irq_data *d);
 
 static struct sunxi_pinctrl_group *
 sunxi_pinctrl_find_group_by_name(struct sunxi_pinctrl *pctl, const char *group)
@@ -556,6 +557,10 @@ static struct irq_chip sunxi_pinctrl_level_irq_chip = {
 	.irq_mask_ack	= sunxi_pinctrl_irq_mask_ack,
 	.irq_unmask	= sunxi_pinctrl_irq_unmask,
 	.irq_eoi	= sunxi_pinctrl_irq_ack,
+	/* Define irq_enable / disable to avoid spurious irqs for drivers
+	 * using these to suppress irqs while they clear the irq source */
+	.irq_enable	= sunxi_pinctrl_irq_ack_unmask,
+	.irq_disable	= sunxi_pinctrl_irq_mask,
 	.irq_set_type	= sunxi_pinctrl_irq_set_type,
 	.name		= "sunxi-pio",
 	.flags		= IRQCHIP_SKIP_SET_WAKE | IRQCHIP_EOI_THREADED |
@@ -685,6 +690,28 @@ static void sunxi_pinctrl_irq_ack(struct irq_data *d)
 
 	/* Clear the IRQ */
 	writel(1 << status_idx, pctl->membase + status_reg);
+
+	spin_unlock_irqrestore(&pctl->lock, flags);
+}
+
+static void sunxi_pinctrl_irq_ack_unmask(struct irq_data *d)
+{
+	struct sunxi_pinctrl *pctl = irq_data_get_irq_chip_data(d);
+	u32 ctrl_reg = sunxi_irq_ctrl_reg(d->hwirq);
+	u8 ctrl_idx = sunxi_irq_ctrl_offset(d->hwirq);
+	u32 status_reg = sunxi_irq_status_reg(d->hwirq);
+	u8 status_idx = sunxi_irq_status_offset(d->hwirq);
+	unsigned long flags;
+	u32 val;
+
+	spin_lock_irqsave(&pctl->lock, flags);
+
+	/* Clear the IRQ */
+	writel(1 << status_idx, pctl->membase + status_reg);
+
+	/* Unmask the IRQ */
+	val = readl(pctl->membase + ctrl_reg);
+	writel(val | (1 << ctrl_idx), pctl->membase + ctrl_reg);
 
 	spin_unlock_irqrestore(&pctl->lock, flags);
 }
