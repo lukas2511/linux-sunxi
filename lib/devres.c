@@ -13,6 +13,7 @@ static int devm_ioremap_match(struct device *dev, void *res, void *match_data)
 	return *(void **)res == match_data;
 }
 
+#define IOMEM_ERR_PTR(err) (__force void __iomem *)ERR_PTR(err)
 
 /**
  * devm_ioremap_resource() - check, request region, and ioremap resource
