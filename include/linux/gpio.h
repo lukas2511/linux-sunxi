@@ -1,6 +1,12 @@
 #ifndef __LINUX_GPIO_H
 #define __LINUX_GPIO_H
 
+
+//int devm_gpio_request(struct device *dev, unsigned gpio, const char *label);
+int devm_gpio_request_one(struct device *dev, unsigned gpio,
+			  unsigned long flags, const char *label);
+//void devm_gpio_free(struct device *dev, unsigned int gpio);
+
 /* see Documentation/gpio.txt */
 
 /* make these flag values available regardless of GPIO kconfig options */
@@ -41,6 +47,7 @@ struct gpio {
 #include <linux/types.h>
 #include <linux/errno.h>
 #include <linux/bug.h>
+
 
 struct device;
 struct gpio_chip;
